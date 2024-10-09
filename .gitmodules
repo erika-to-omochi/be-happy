@@ -1,0 +1,6 @@
+[submodule "back"]
+	path = back
+	url = git@github.com:erika-to-omochi/be-happy-back.git
+[submodule "front"]
+	path = front
+	url = git@github.com:erika-to-omochi/be-happy-front.git
