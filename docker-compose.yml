@@ -1,7 +1,6 @@
-version: "3"
 services:
   db:
-    image: node:20.18.0
+    image: postgres:15
     environment:
       POSTGRES_DB: app_development
       POSTGRES_USER: user
