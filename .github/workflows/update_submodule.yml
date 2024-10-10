@@ -27,6 +27,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # ブランチ名にタイムスタンプを使って一意性を確保
           BRANCH_NAME="update-submodules-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $BRANCH_NAME
           git push origin $BRANCH_NAME
