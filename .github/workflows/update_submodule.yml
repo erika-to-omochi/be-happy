@@ -1,0 +1,43 @@
+name: Update Submodule and Create PR
+
+on:
+  push:
+    paths:
+      - 'back/**'
+      - 'front/**'
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout parent repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update submodules
+        run: |
+          git submodule update --remote --merge
+          git add back front
+          git commit -m "Automated update of submodules" || echo "No changes to commit"
+
+      - name: Push changes to a new branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="update-submodules-$(date +'%Y%m%d%H%M%S')"
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update submodules"
+          branch: ${{ env.BRANCH_NAME }}
+          title: "Update submodules"
+          body: |
+            This PR updates the submodules `back` and/or `front` with the latest changes.
+            Please review the updates.
