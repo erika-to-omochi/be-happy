@@ -14,7 +14,7 @@ jobs:
           echo "Repository Dispatch Event Triggered"
           echo "Event Type: ${{ github.event.type }}"
           echo "Event Payload: ${{ toJson(github.event) }}"
-      
+
       - name: Checkout parent repository
         uses: actions/checkout@v3
         with:
@@ -28,8 +28,24 @@ jobs:
 
       - name: Update submodules
         run: |
-          git submodule update --remote --merge || git submodule update --remote --merge --allow-unrelated-histories
+          # サブモジュール 'back' を最新の main ブランチにリセット
+          cd back
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          cd ..
+
+          # サブモジュール 'front' を最新の main ブランチにリセット
+          cd front
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+          cd ..
+
+          # サブモジュールの変更をステージング
           git add back front
+
+          # コミット（変更がない場合はスキップ）
           git commit -m "Automated update of submodules" || echo "No changes to commit"
 
       - name: Push changes to a new branch
