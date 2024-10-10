@@ -9,15 +9,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug - Repository Dispatch Event
+        run: |
+          echo "Repository Dispatch Event Triggered"
+          echo "Event Type: ${{ github.event.type }}"
+          echo "Event Payload: ${{ toJson(github.event) }}"
+      
       - name: Checkout parent repository
         uses: actions/checkout@v3
         with:
           submodules: true
+          fetch-depth: 0  # フル履歴を取得
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync submodules
+        run: |
+          git submodule sync --recursive
 
       - name: Update submodules
         run: |
-          git submodule update --remote --merge
+          git submodule update --remote --merge || git submodule update --remote --merge --allow-unrelated-histories
           git add back front
           git commit -m "Automated update of submodules" || echo "No changes to commit"
 
@@ -26,6 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH_NAME="update-submodules-$(date +'%Y%m%d%H%M%S')"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
           git push origin $BRANCH_NAME
 
@@ -34,7 +46,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update submodules"
-          branch: $BRANCH_NAME
+          branch: ${{ env.BRANCH_NAME }}
           title: "Update submodules"
           body: |
             This PR updates the submodules `back` and/or `front` with the latest changes.
