@@ -1,10 +1,8 @@
 name: Update Submodule and Create PR
 
 on:
-  push:
-    paths:
-      - 'back/**'
-      - 'front/**'
+  repository_dispatch:
+    types: [update-submodules]
 
 jobs:
   update-submodule:
@@ -27,7 +25,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # ブランチ名にタイムスタンプを使って一意性を確保
           BRANCH_NAME="update-submodules-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $BRANCH_NAME
           git push origin $BRANCH_NAME
@@ -37,7 +34,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update submodules"
-          branch: ${{ env.BRANCH_NAME }}
+          branch: $BRANCH_NAME
           title: "Update submodules"
           body: |
             This PR updates the submodules `back` and/or `front` with the latest changes.
