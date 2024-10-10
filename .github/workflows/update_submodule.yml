@@ -60,7 +60,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PARENT_REPO_TOKEN }}
           commit-message: "Update submodules"
           branch: ${{ env.BRANCH_NAME }}
           base: main
