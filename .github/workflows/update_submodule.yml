@@ -63,6 +63,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Update submodules"
           branch: ${{ env.BRANCH_NAME }}
+          base: main
           title: "Update submodules"
           body: |
             This PR updates the submodules `back` and/or `front` with the latest changes.
