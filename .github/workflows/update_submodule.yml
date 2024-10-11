@@ -25,13 +25,18 @@ jobs:
           git add .
           git commit -m "Update submodules to the latest commit" || echo "No changes to commit"
 
+      - name: Set branch name with date
+        run: |
+          BRANCH_NAME="update-submodules-$(date +'%Y%m%d-%H%M%S')"
+          echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PARENT_REPO_TOKEN }}
           commit-message: "Update submodules to the latest commit"
-          branch: update-submodules-${{ github.run_id }}
-          title: "Update submodules to the latest commit"
+          branch: ${{ env.BRANCH_NAME }}
+          title: "Update submodules - $(date +'%Y-%m-%d %H:%M:%S')"
           body: |
             このプルリクエストは、サブモジュールを最新のコミットに更新します。
           base: main
