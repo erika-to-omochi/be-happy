@@ -24,11 +24,12 @@ jobs:
           git submodule update --remote --merge
           git add .
           git commit -m "Update submodules to the latest commit" || echo "No changes to commit"
-
-      - name: Set branch name with date
+      - name: Set branch name and date
         run: |
           BRANCH_NAME="update-submodules-$(date +'%Y%m%d-%H%M%S')"
+          DATE="$(date +'%Y-%m-%d %H:%M:%S')"
           echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+          echo "DATE=${DATE}" >> $GITHUB_ENV
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
@@ -36,7 +37,8 @@ jobs:
           token: ${{ secrets.PARENT_REPO_TOKEN }}
           commit-message: "Update submodules to the latest commit"
           branch: ${{ env.BRANCH_NAME }}
-          title: "Update submodules - $(date +'%Y-%m-%d %H:%M:%S')"
+          title: "Update submodules - ${{ env.DATE }}"
           body: |
             このプルリクエストは、サブモジュールを最新のコミットに更新します。
           base: main
+
