@@ -1,4 +1,4 @@
-name: Update Submodule and Create PR
+name: Update Submodules
 
 on:
   repository_dispatch:
@@ -9,66 +9,29 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-submodule:
+  update-submodules:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug - Repository Dispatch Event
-        run: |
-          echo "Repository Dispatch Event Triggered"
-          echo "Event Type: ${{ github.event.type }}"
-          echo "Event Payload: ${{ toJson(github.event) }}"
-
-      - name: Checkout parent repository
+      - name: Checkout parent repository with submodules
         uses: actions/checkout@v3
         with:
           submodules: true
-          fetch-depth: 0  # フル履歴を取得
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Sync submodules
-        run: |
-          git submodule sync --recursive
+          fetch-depth: 0
 
       - name: Update submodules
         run: |
-          # サブモジュール 'back' を最新の main ブランチにリセット
-          cd back
-          git fetch origin main
-          git checkout main
-          git reset --hard origin/main
-          cd ..
-
-          # サブモジュール 'front' を最新の main ブランチにリセット
-          cd front
-          git fetch origin main
-          git checkout main
-          git reset --hard origin/main
-          cd ..
-
-          # サブモジュールの変更をステージング
-          git add back front
-
-          # コミット（変更がない場合はスキップ）
-          git commit -m "Automated update of submodules" || echo "No changes to commit"
-
-      - name: Push changes to a new branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH_NAME="update-submodules-$(date +'%Y%m%d%H%M%S')"
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-          git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
+          git submodule update --remote --merge
+          git add .
+          git commit -m "Update submodules to the latest commit" || echo "No changes to commit"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PARENT_REPO_TOKEN }}
-          commit-message: "Update submodules"
-          branch: ${{ env.BRANCH_NAME }}
-          base: main
-          title: "Update submodules"
+          commit-message: "Update submodules to the latest commit"
+          branch: update-submodules-${{ github.run_id }}
+          title: "Update submodules to the latest commit"
           body: |
-            This PR updates the submodules `back` and/or `front` with the latest changes.
-            Please review the updates.
+            このプルリクエストは、サブモジュールを最新のコミットに更新します。
+          base: main
